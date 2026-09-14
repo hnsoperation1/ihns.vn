@@ -86,7 +86,16 @@ export function PullToRefresh({ children, className }: { children: React.ReactNo
       <div
         style={
           enabled
-            ? { transform: `translateY(${pull}px)`, transition: startY.current === null ? 'transform 150ms' : undefined }
+            ? {
+                // `transform: translateY(0px)` VẪN được tính là "có transform" theo
+                // chuẩn CSS — biến div này thành khung chứa mới cho mọi phần tử con
+                // `position: fixed` (vd modal xác nhận), khiến chúng bị cuộn theo
+                // nội dung thay vì cố định theo màn hình. Chỉ đặt transform thật khi
+                // đang kéo (pull > 0), còn lại dùng 'none' để trả lại đúng hành vi
+                // `fixed` gốc (neo theo viewport).
+                transform: pull > 0 ? `translateY(${pull}px)` : 'none',
+                transition: startY.current === null ? 'transform 150ms' : undefined,
+              }
             : undefined
         }
       >

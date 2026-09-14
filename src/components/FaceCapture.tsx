@@ -198,15 +198,24 @@ export function FaceCapture({
         </div>
       )}
 
-      <div className="relative aspect-square w-full overflow-hidden bg-gray-900">
-        <video ref={videoRef} muted playsInline className="h-full w-full object-cover -scale-x-100" />
-        {status !== 'error' && (
-          <div
-            className={`pointer-events-none absolute inset-6 rounded-full border-4 transition-colors ${
-              status === 'found' || status === 'processing' ? 'border-green-400' : 'border-white/50'
-            }`}
-          />
-        )}
+      {/* Ép khung luôn vuông bằng kỹ thuật "padding-top 100%" thay vì
+          `aspect-square` (CSS aspect-ratio) — aspect-ratio trong flexbox bị
+          Safari/WebKit tính sai chiều cao ở 1 số viewport (thấy rõ trên
+          iPhone độ phân giải cao, khung bị kéo dài ngang). Padding phần trăm
+          luôn tính theo CHIỀU RỘNG của khối cha bất kể ngữ cảnh flex/grid nên
+          không bị lỗi tương tự. */}
+      <div className="relative w-full overflow-hidden bg-gray-900">
+        <div className="pt-[100%]" />
+        <div className="absolute inset-0">
+          <video ref={videoRef} muted playsInline className="h-full w-full object-cover -scale-x-100" />
+          {status !== 'error' && (
+            <div
+              className={`pointer-events-none absolute inset-6 rounded-full border-4 transition-colors ${
+                status === 'found' || status === 'processing' ? 'border-green-400' : 'border-white/50'
+              }`}
+            />
+          )}
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 gap-3">
