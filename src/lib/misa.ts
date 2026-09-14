@@ -175,6 +175,43 @@ export async function fetchMisaApplications(
   })
 }
 
+// B.I/II — bảng chấm công CHI TIẾT theo ca/ngày/giờ (khác bảng TỔNG HỢP ở
+// dưới) — mỗi bảng ứng với 1 đơn vị/kỳ, DataDaily là 1 chuỗi JSON chứa
+// Day1..Day31, mỗi ngày 1 mảng chi tiết (giờ vào/ra thực tế, trạng thái,
+// nghỉ, OT...). Dùng cho màn tra cứu thô "xem MISA đang có gì" — không
+// tích hợp/tính toán gì thêm, chỉ hiển thị lại nguyên văn.
+export type MisaTimesheet = {
+  TimeSheetID: number
+  TimeSheetName: string
+  OrganizationUnitName: string
+  JobPositionNames: string
+  FromDate: string
+  ToDate: string
+  TimeSheetType: number
+}
+
+export async function fetchMisaTimesheet(fromDate: Date, toDate: Date): Promise<MisaTimesheet[]> {
+  return fetchMisaPaged<MisaTimesheet>('get-data-timesheet', {
+    FromDate: formatMisaDateOnly(fromDate),
+    ToDate: formatMisaDateOnly(toDate),
+  })
+}
+
+export type MisaTimesheetDetailRow = {
+  TimeSheetID: number
+  FullName: string
+  EmployeeCode: string
+  OrganizationUnitName: string
+  JobPositionName: string
+  DataDaily: string // chuỗi JSON — Record<"Day1".."Day31", object[]>
+}
+
+export async function fetchMisaTimesheetDetail(timeSheetId: number): Promise<MisaTimesheetDetailRow[]> {
+  return fetchMisaPaged<MisaTimesheetDetailRow>('get-data-timesheet-detail', {
+    TimeSheetID: timeSheetId,
+  })
+}
+
 // B.III/IV — bảng chấm công TỔNG HỢP (công chuẩn, tổng công, đi muộn về
 // sớm, nghỉ, OT theo từng nhân viên/kỳ) — dùng để đối chiếu với số iHNS tự
 // tính.
