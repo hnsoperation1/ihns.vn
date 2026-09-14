@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Loader2, MapPin, Plus, Trash2, LocateFixed, Pencil, X, Check, Wifi } from 'lucide-react'
+import { Loader2, MapPin, Plus, Trash2, LocateFixed, Pencil, X, Check, Wifi, Globe } from 'lucide-react'
 import { useAuth } from '@/contexts/auth'
 import { PageHeader } from '@/components/PageHeader'
 
@@ -34,6 +34,47 @@ export default function DiaDiemPage() {
   const [editForm, setEditForm] = useState({ name: '', address: '', lat: '', lng: '', radius: '', officeIp: '' })
   const [editSaving, setEditSaving] = useState(false)
   const [editError, setEditError] = useState('')
+
+  const [fetchingIp, setFetchingIp] = useState(false)
+
+  // Nối thêm IP hiện tại vào ô đang có (cách nhau bởi dấu phẩy, tránh thêm
+  // trùng) — cùng cơ chế "cách nhau bởi dấu phẩy" mà backend đã hỗ trợ sẵn.
+  function appendIp(current: string, ip: string): string {
+    const parts = current.split(',').map((p) => p.trim()).filter(Boolean)
+    if (parts.includes(ip)) return current
+    return [...parts, ip].join(', ')
+  }
+
+  async function fetchMyIp(): Promise<string | null> {
+    setFetchingIp(true)
+    try {
+      const res = await fetch('/api/admin/my-ip')
+      const data = await res.json()
+      return res.ok ? (data.ip as string) : null
+    } catch {
+      return null
+    } finally {
+      setFetchingIp(false)
+    }
+  }
+
+  async function useMyIp() {
+    const ip = await fetchMyIp()
+    if (!ip) {
+      setError('Không lấy được IP hiện tại')
+      return
+    }
+    setOfficeIp((cur) => appendIp(cur, ip))
+  }
+
+  async function useMyIpForEdit() {
+    const ip = await fetchMyIp()
+    if (!ip) {
+      setEditError('Không lấy được IP hiện tại')
+      return
+    }
+    setEditForm((f) => ({ ...f, officeIp: appendIp(f.officeIp, ip) }))
+  }
 
   async function load() {
     setLoading(true)
@@ -221,8 +262,17 @@ export default function DiaDiemPage() {
             value={officeIp}
             onChange={(e) => setOfficeIp(e.target.value)}
             placeholder="IP văn phòng (tuỳ chọn, cách nhau bởi dấu phẩy)"
-            className="col-span-2 text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
+          <button
+            type="button"
+            onClick={useMyIp}
+            disabled={fetchingIp}
+            className="flex items-center justify-center gap-1.5 text-sm text-brand-600 border border-brand-200 rounded-xl px-3 py-2 hover:bg-brand-50 disabled:opacity-60"
+          >
+            {fetchingIp ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
+            Lấy IP hiện tại
+          </button>
         </div>
         {error && <p className="text-xs text-red-500">{error}</p>}
         <button
@@ -289,8 +339,17 @@ export default function DiaDiemPage() {
                     value={editForm.officeIp}
                     onChange={(e) => setEditForm((f) => ({ ...f, officeIp: e.target.value }))}
                     placeholder="IP văn phòng (tuỳ chọn, cách nhau bởi dấu phẩy)"
-                    className="col-span-2 text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                    className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
                   />
+                  <button
+                    type="button"
+                    onClick={useMyIpForEdit}
+                    disabled={fetchingIp}
+                    className="flex items-center justify-center gap-1.5 text-sm text-brand-600 border border-brand-200 rounded-xl px-3 py-2 hover:bg-brand-50 disabled:opacity-60"
+                  >
+                    {fetchingIp ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
+                    Lấy IP hiện tại
+                  </button>
                 </div>
                 {editError && <p className="text-xs text-red-500">{editError}</p>}
                 <div className="flex items-center gap-2">
