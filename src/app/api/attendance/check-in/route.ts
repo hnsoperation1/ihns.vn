@@ -3,6 +3,7 @@ import { requireUser } from '@/lib/auth'
 import { getClientIp } from '@/lib/geo'
 import { euclideanDistance } from '@/lib/face'
 import { evaluateLocation, getEmployeeRequirements, getFaceMatchThreshold } from '@/lib/attendance'
+import { pushMisaCheckIn } from '@/lib/misa'
 
 type Body = {
   lat?: unknown
@@ -120,6 +121,26 @@ export async function POST(req: NextRequest) {
 
   if (insertError) {
     return NextResponse.json({ error: 'Không lưu được chấm công' }, { status: 500 })
+  }
+
+  // Tính năng 4 (đối chiếu 2 chiều với MISA) — chấm công đã lưu ở iHNS
+  // thành công RỒI mới thử đẩy thêm sang MISA, best-effort: MISA lỗi/timeout
+  // KHÔNG được làm hỏng response chấm công của nhân viên (log ở đây, không
+  // throw ra ngoài). Chỉ đẩy khi: công tắc misa_push_enabled đang BẬT, nhân
+  // viên đã khớp mã MISA, và lượt chấm công này ĐẠT điều kiện thật
+  // (is_success) — không đẩy những lượt iHNS tự coi là thất bại.
+  if (isSuccess) {
+    try {
+      const [{ data: settings }, { data: req }] = await Promise.all([
+        supabase.from('hrm_app_settings').select('misa_push_enabled').eq('id', 1).maybeSingle(),
+        supabase.from('hrm_employee_requirements').select('misa_employee_code').eq('user_id', user!.id).maybeSingle(),
+      ])
+      if (settings?.misa_push_enabled && req?.misa_employee_code) {
+        await pushMisaCheckIn(req.misa_employee_code, new Date(log.created_at), { lat, lng })
+      }
+    } catch (e) {
+      console.error('[check-in] đẩy chấm công lên MISA thất bại:', e)
+    }
   }
 
   let failReason: string | null = null

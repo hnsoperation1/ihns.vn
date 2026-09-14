@@ -44,6 +44,11 @@ export async function runMisaSync(supabase: SupabaseClient<any>, options?: { fro
   // ăn trưa).
   const byUserDay = new Map<string, MisaRawPunch[]>()
   for (const p of punches) {
+    // DataSourceID=11 ("Chấm công từ ứng dụng CRM") là dữ liệu do CHÍNH
+    // iHNS vừa đẩy lên MISA (xem misa.ts pushMisaCheckIn, tính năng đẩy
+    // chấm công iHNS -> MISA) — bỏ qua khi kéo về, nếu không sẽ tạo dòng
+    // channel='misa' trùng với dòng channel='web' gốc đã có sẵn.
+    if (p.DataSourceID === 11) continue
     const userId = userIdByCode.get(p.EmployeeCode)
     if (!userId) continue // nhân viên chưa được ánh xạ mã MISA -> bỏ qua
     const key = `${userId}__${vnDayKey(p.CheckTime)}`
