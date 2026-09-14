@@ -4,12 +4,12 @@ import { AuthProvider } from "@/contexts/auth";
 import { AppShell } from "@/components/AppShell";
 
 export const metadata: Metadata = {
-  title: "HNS HRM",
+  title: "iHNS",
   description: "Chấm công theo vị trí GPS cho nhân viên Hanoi Sun Travel",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "HNS HRM",
+    title: "iHNS",
   },
   icons: {
     icon: [

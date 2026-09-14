@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'HNS HRM — Chấm công',
-    short_name: 'HNS HRM',
+    name: 'iHNS — Chấm công',
+    short_name: 'iHNS',
     description: 'Chấm công theo vị trí GPS cho nhân viên Hanoi Sun Travel',
     start_url: '/',
     display: 'standalone',

@@ -2,10 +2,25 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, XCircle, Loader2, LogIn, LogOut, MapPin, Wifi, ScanFace } from 'lucide-react'
+import { CheckCircle2, ChevronRight, ClipboardList, LayoutGrid, Settings, XCircle, Loader2, LogIn, LogOut, MapPin, Wifi, ScanFace, type LucideIcon } from 'lucide-react'
 import { CheckInWizard, type CheckInWizardResult } from '@/components/CheckInWizard'
-import { LogRow, formatTime, formatDayHeading, groupLogsByDay, type AttendanceLog } from '@/components/AttendanceLogRow'
+import { formatTime, type AttendanceLog } from '@/components/AttendanceLogRow'
 import { useAuth } from '@/contexts/auth'
+
+function NavCard({ href, label, Icon }: { href: string; label: string; Icon: LucideIcon }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50">
+        <Icon size={18} className="text-brand-500" />
+      </div>
+      <span className="flex-1 text-sm font-bold text-gray-800">{label}</span>
+      <ChevronRight size={18} className="shrink-0 text-gray-300" />
+    </Link>
+  )
+}
 
 type StatusResponse = {
   logs: AttendanceLog[]
@@ -29,22 +44,15 @@ export default function ChamCongPage() {
   const [showWizard, setShowWizard] = useState(false)
   const [showConfirmOut, setShowConfirmOut] = useState(false)
   const [faceEnrolled, setFaceEnrolled] = useState<boolean | null>(null)
-  const [recentLogs, setRecentLogs] = useState<AttendanceLog[] | null>(null)
 
   const loadStatus = useCallback(async () => {
     const res = await fetch('/api/attendance/status')
     if (res.ok) setStatus(await res.json())
   }, [])
 
-  const loadRecentLogs = useCallback(async () => {
-    const res = await fetch('/api/attendance/recent?days=3')
-    if (res.ok) setRecentLogs((await res.json()).logs ?? [])
-  }, [])
-
   useEffect(() => {
     loadStatus()
-    loadRecentLogs()
-  }, [loadStatus, loadRecentLogs])
+  }, [loadStatus])
 
   // Nhắc đăng ký khuôn mặt NGAY tại màn chấm công nếu chưa có — trước đây
   // phải tự vào Menu mới thấy, nhiều khả năng nhân viên không biết là thiếu
@@ -81,7 +89,7 @@ export default function ChamCongPage() {
     // Luôn làm mới trạng thái dù thành công hay bị server từ chối (vd đã đủ
     // 1 vào + 1 ra) — tránh giao diện hiện nút cũ dù server đã coi ngày đó
     // là xong, dễ bấm thêm vô ích.
-    await Promise.all([loadStatus(), loadRecentLogs()])
+    await loadStatus()
   }
 
   // Chấm công vào thì bấm là chạy luôn; chấm công RA cần xác nhận lại trước
@@ -201,40 +209,10 @@ export default function ChamCongPage() {
         </div>
       )}
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <h2 className="border-b border-gray-100 px-5 py-3 text-sm font-bold text-gray-700">Dữ liệu chấm công</h2>
-
-        <div className="p-5">
-          {recentLogs === null ? (
-            <div className="flex justify-center py-4">
-              <Loader2 size={16} className="animate-spin text-gray-400" />
-            </div>
-          ) : recentLogs.length === 0 ? (
-            <p className="text-sm text-gray-400">Chưa có dữ liệu chấm công.</p>
-          ) : (
-            <div className="space-y-4">
-              {groupLogsByDay(recentLogs).map(([day, dayLogs]) => (
-                <div key={day}>
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">{formatDayHeading(day)}</p>
-                  <div className="space-y-2">
-                    {dayLogs.map((log) => (
-                      <LogRow key={log.id} log={log} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Đang cân nhắc thiết kế đầy đủ cho phần này — tạm thời chỉ hiện
-              3 ngày gần nhất kèm nút mở trang xem toàn bộ lịch sử. */}
-          <Link
-            href="/lich-su-cham-cong"
-            className="mt-4 block text-center text-sm font-bold text-brand-600 hover:underline"
-          >
-            Xem thêm
-          </Link>
-        </div>
+      <div className="mt-6 space-y-4">
+        <NavCard href="/lich-su-cham-cong" label="Bảng công" Icon={ClipboardList} />
+        <NavCard href="/menu" label="Menu" Icon={LayoutGrid} />
+        <NavCard href="/cai-dat" label="Cài đặt" Icon={Settings} />
       </div>
 
       {/* Modal chấm công thành công */}
