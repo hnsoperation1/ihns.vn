@@ -11,6 +11,7 @@ type PrecheckResult = {
   wifiOk: boolean
   nearestLocationName: string | null
   distanceM: number | null
+  officeLocationNames: string[]
 }
 
 export type CheckInWizardResult = {
@@ -302,6 +303,20 @@ export function CheckInWizard({ type, onCancel, onComplete }: Props) {
                 ? `Đúng vị trí${precheck.nearestLocationName ? ` — ${precheck.nearestLocationName}` : ''}`
                 : 'Sai vị trí — không ở văn phòng'}
           </p>
+
+          {currentKind === 'wifi' && !stepOk && precheck.officeLocationNames.length > 0 && (
+            <div className="w-full rounded-xl bg-gray-50 px-4 py-3">
+              <p className="text-xs font-bold text-gray-500">Các văn phòng có mạng hợp lệ</p>
+              <ul className="mt-1.5 space-y-1">
+                {precheck.officeLocationNames.map((name) => (
+                  <li key={name} className="flex items-center gap-2 text-sm text-gray-700">
+                    <Wifi size={14} className="shrink-0 text-gray-400" />
+                    {name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="w-full pt-2">
             {stepOk ? (

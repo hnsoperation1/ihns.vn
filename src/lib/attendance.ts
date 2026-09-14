@@ -81,7 +81,12 @@ export async function evaluateLocation(
     !nearestRequiresIp ||
     (requestIp !== null && nearest!.office_ip!.split(',').map((ip) => ip.trim()).includes(requestIp))
 
-  return { nearest, isWithinRadius, isIpVerified, ipMatchedLocationName, nearestIpOk }
+  // Tên các địa điểm có cấu hình IP văn phòng — hiện cho nhân viên biết đang
+  // có những văn phòng nào để đối chiếu khi bước Wi-Fi thất bại. Chỉ lộ TÊN,
+  // không lộ IP thật (không cần thiết để nhân viên tự "gõ" IP giả).
+  const officeLocationNames = (locations ?? []).filter((l) => l.office_ip).map((l) => l.name)
+
+  return { nearest, isWithinRadius, isIpVerified, ipMatchedLocationName, nearestIpOk, officeLocationNames }
 }
 
 export type EmployeeRequirements = {

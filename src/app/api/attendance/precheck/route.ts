@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
   const requirements = await getEmployeeRequirements(supabase, user!.id)
   const requestIp = getClientIp(req.headers)
-  const { nearest, isWithinRadius, nearestIpOk } = await evaluateLocation(
+  const { nearest, isWithinRadius, nearestIpOk, officeLocationNames } = await evaluateLocation(
     supabase,
     lat,
     lng,
@@ -45,5 +45,6 @@ export async function POST(req: NextRequest) {
     nearestLocationName: nearest?.name ?? null,
     distanceM: nearest ? Math.round(nearest.distance) : null,
     failReason: reasons.length > 0 ? reasons.join(', ') : null,
+    officeLocationNames,
   })
 }
