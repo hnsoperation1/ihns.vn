@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2, Plus, Send, Trash2, Users } from 'lucide-react'
 import { useAuth } from '@/contexts/auth'
-import { PageHeader } from '@/components/PageHeader'
+import { BackLink } from '../_components/BackLink'
 
 type Employee = {
   id: string
@@ -37,9 +37,7 @@ export default function DuyetDonTuPage() {
       setEmployees(data.employees)
       setGroups(data.groups)
       setAttendanceAdminUserId(data.attendanceAdminUserId)
-      setChatIdInputs(
-        Object.fromEntries(data.employees.map((e: Employee) => [e.id, e.telegram_chat_id?.toString() ?? ''])),
-      )
+      setChatIdInputs(Object.fromEntries(data.employees.map((e: Employee) => [e.id, e.telegram_chat_id?.toString() ?? ''])))
     }
     setLoading(false)
   }
@@ -105,15 +103,16 @@ export default function DuyetDonTuPage() {
   }
 
   return (
-    <div>
-      <PageHeader title="Duyệt đơn từ" />
-      <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
-        <p className="text-sm text-gray-500">
-          Bot đọc tin nhắn xin nghỉ/đi muộn/về sớm/làm online/công tác trong các nhóm HCNS bên dưới, cần cấu hình ID
-          Telegram của từng người thì bot mới biết ai với ai.
-        </p>
+    <div className="max-w-5xl mx-auto px-6 py-8">
+      <BackLink />
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Duyệt đơn từ</h1>
+      <p className="text-sm text-gray-500 mb-6">
+        Bot Telegram đọc tin nhắn xin nghỉ/đi muộn/về sớm/làm online/công tác trong các nhóm HCNS bên dưới, cần cấu
+        hình ID Telegram của từng người thì bot mới biết ai với ai.
+      </p>
 
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
           <h2 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-1.5">
             <Send size={14} className="text-brand-500" />
             Admin chấm công (người bấm &quot;Duyệt&quot;)
@@ -133,14 +132,12 @@ export default function DuyetDonTuPage() {
           </select>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
           <h2 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-1.5">
             <Users size={14} className="text-brand-500" />
             Nhóm HCNS
           </h2>
-          <p className="text-xs text-gray-400 mb-3">
-            Thêm bot vào nhóm, nhắn 1 câu bất kỳ trong nhóm — bot sẽ trả lời kèm ID nhóm (số âm), dán ID đó vào đây.
-          </p>
+          <p className="text-xs text-gray-400 mb-3">Thêm bot vào nhóm, nhắn 1 câu bất kỳ — bot trả lời kèm ID nhóm (số âm), dán vào đây.</p>
 
           {loading ? (
             <Loader2 size={14} className="animate-spin text-gray-400" />
@@ -166,13 +163,13 @@ export default function DuyetDonTuPage() {
               value={newGroupChatId}
               onChange={(e) => setNewGroupChatId(e.target.value)}
               placeholder="ID nhóm (vd -1001234567890)"
-              className="flex-1 min-w-[160px] text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="flex-1 min-w-[140px] text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
             />
             <input
               value={newGroupLabel}
               onChange={(e) => setNewGroupLabel(e.target.value)}
-              placeholder="Tên nhóm (vd HCNS Hà Nội)"
-              className="flex-1 min-w-[160px] text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              placeholder="Tên nhóm"
+              className="flex-1 min-w-[120px] text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
             />
             <button
               type="button"
@@ -184,38 +181,49 @@ export default function DuyetDonTuPage() {
           </div>
           {groupError && <p className="text-xs text-red-500 mt-2">{groupError}</p>}
         </div>
+      </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
-          <h2 className="text-sm font-bold text-gray-800 mb-1">Nhân viên</h2>
-          <p className="text-xs text-gray-400 mb-3">
-            ID Telegram: nhân viên tự nhắn cho bot (DM riêng hoặc trong nhóm) để lấy ID, gửi cho bạn dán vào đây.
-          </p>
-
-          {loading ? (
-            <Loader2 size={14} className="animate-spin text-gray-400" />
-          ) : (
-            <div className="space-y-3">
-              {employees.map((emp) => (
-                <div key={emp.id} className="rounded-xl border border-gray-100 p-3">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-700 truncate">{emp.full_name}</p>
-                      <p className="text-xs text-gray-400 truncate">{emp.email}</p>
-                    </div>
-                    {savingId === emp.id && <Loader2 size={14} className="animate-spin text-gray-400 shrink-0" />}
-                  </div>
-                  <input
-                    value={chatIdInputs[emp.id] ?? ''}
-                    onChange={(e) => setChatIdInputs((prev) => ({ ...prev, [emp.id]: e.target.value }))}
-                    onBlur={() => saveChatId(emp)}
-                    placeholder="ID Telegram"
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-400"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-gray-100">
+          <h2 className="text-sm font-bold text-gray-800">Nhân viên</h2>
+          <p className="text-xs text-gray-400">ID Telegram: nhân viên tự nhắn cho bot để lấy ID, gửi cho bạn dán vào đây.</p>
         </div>
+        {loading ? (
+          <div className="p-5 text-sm text-gray-400 flex items-center gap-2">
+            <Loader2 size={14} className="animate-spin" /> Đang tải...
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 text-left text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <th className="px-5 py-2.5">Nhân viên</th>
+                <th className="px-5 py-2.5">ID Telegram</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {employees.map((emp) => (
+                <tr key={emp.id} className="hover:bg-gray-50/70">
+                  <td className="px-5 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-gray-800">{emp.full_name}</p>
+                      {savingId === emp.id && <Loader2 size={12} className="animate-spin text-gray-400" />}
+                    </div>
+                    <p className="text-xs text-gray-400">{emp.email}</p>
+                  </td>
+                  <td className="px-5 py-2.5 w-56">
+                    <input
+                      value={chatIdInputs[emp.id] ?? ''}
+                      onChange={(e) => setChatIdInputs((prev) => ({ ...prev, [emp.id]: e.target.value }))}
+                      onBlur={() => saveChatId(emp)}
+                      placeholder="ID Telegram"
+                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )

@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronRight, ScanFace, SlidersHorizontal, type LucideIcon } from 'lucide-react'
-import { useAuth } from '@/contexts/auth'
+import { ChevronRight, ScanFace, type LucideIcon } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 
 function Row({ href, label, Icon }: { href: string; label: string; Icon: LucideIcon }) {
@@ -15,14 +14,13 @@ function Row({ href, label, Icon }: { href: string; label: string; Icon: LucideI
   )
 }
 
-// Màn "Cài đặt" — gom các trang cấu hình (khuôn mặt, địa điểm, yêu cầu chấm
-// công theo nhân viên...). Không còn nằm trên thanh điều hướng dưới đáy nữa
-// — giờ là màn con, vào từ mục "Cài đặt" trong Tài khoản. Đăng xuất cũng đã
-// chuyển sang Tài khoản, không lặp lại ở đây nữa.
+// Màn "Cài đặt" — gom các trang cấu hình CỦA CHÍNH NHÂN VIÊN (khuôn mặt...).
+// Không còn nằm trên thanh điều hướng dưới đáy nữa — giờ là màn con, vào từ
+// mục "Cài đặt" trong Tài khoản. Đăng xuất cũng đã chuyển sang Tài khoản,
+// không lặp lại ở đây nữa. Cấu hình dành cho ADMIN (địa điểm, ca làm việc,
+// yêu cầu theo nhân viên...) đã chuyển hết sang /quan-li-cham-cong (vào từ
+// Menu), không còn ở đây nữa.
 export default function CaiDatPage() {
-  const { user } = useAuth()
-  const isAdmin = user?.is_super_admin || user?.is_boss
-
   return (
     <div>
       <PageHeader title="Cài đặt" />
@@ -30,12 +28,6 @@ export default function CaiDatPage() {
         <div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <Row href="/dang-ky-khuon-mat" label="Khuôn mặt" Icon={ScanFace} />
         </div>
-
-        {isAdmin && (
-          <div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <Row href="/admin/cai-dat-cham-cong" label="Cài đặt chấm công" Icon={SlidersHorizontal} />
-          </div>
-        )}
       </div>
     </div>
   )

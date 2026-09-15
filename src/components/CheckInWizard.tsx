@@ -70,7 +70,7 @@ function Shell({ title, onBack, children }: { title: string; onBack: () => void;
  * Chấm công theo TỪNG BƯỚC riêng biệt (Wi-Fi văn phòng → vị trí GPS → khuôn
  * mặt) thay vì gộp hết vào 1 lần bấm — mỗi bước hiện rõ kết quả trước khi
  * cho qua bước tiếp theo. Bước nào không bị bắt buộc (admin tắt ở
- * /admin/yeu-cau-cham-cong) thì tự động BỎ QUA, không hiện ra.
+ * /quan-li-cham-cong/yeu-cau) thì tự động BỎ QUA, không hiện ra.
  *
  * QUAN TRỌNG: vào Bước 1 là hiện NGAY (không có màn "đang tải" trung gian
  * trước khi thấy số bước) — quá trình xin GPS + gọi API kiểm tra Wi-Fi/vị

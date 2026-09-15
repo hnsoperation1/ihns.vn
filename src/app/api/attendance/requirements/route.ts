@@ -4,7 +4,7 @@ import { getEmployeeRequirements } from '@/lib/attendance'
 
 // Cho client biết TRƯỚC những bước nào cần hiện trong wizard chấm công
 // (Wi-Fi / vị trí / khuôn mặt) — tránh hiện bước thừa cho nhân viên không bị
-// bắt buộc điều kiện đó (admin cấu hình ở /admin/yeu-cau-cham-cong).
+// bắt buộc điều kiện đó (admin cấu hình ở /quan-li-cham-cong/yeu-cau).
 export async function GET() {
   const { user, supabase, unauthorized } = await requireUser()
   if (unauthorized) return unauthorized

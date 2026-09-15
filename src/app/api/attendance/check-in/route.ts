@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Điều kiện nào bắt buộc + có bị gán cố định 1 địa điểm hay không tuỳ theo
-  // cấu hình riêng của từng nhân viên (admin đặt ở /admin/yeu-cau-cham-cong).
+  // cấu hình riêng của từng nhân viên (admin đặt ở /quan-li-cham-cong/yeu-cau).
   const requirements = await getEmployeeRequirements(supabase, user!.id)
 
   const requestIp = getClientIp(req.headers)

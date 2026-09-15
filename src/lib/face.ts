@@ -39,7 +39,7 @@ export async function extractFaceEmbedding(input: HTMLVideoElement): Promise<num
 }
 
 // Ngưỡng khớp mặt giờ cấu hình động ở DB (bảng hrm_app_settings, admin chỉnh
-// tại /admin/yeu-cau-cham-cong) — xem getFaceMatchThreshold() trong
+// tại /quan-li-cham-cong/yeu-cau) — xem getFaceMatchThreshold() trong
 // lib/attendance.ts, không còn hard-code cố định ở đây nữa.
 
 export function euclideanDistance(a: number[], b: number[]): number {

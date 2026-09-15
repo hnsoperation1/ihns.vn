@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ClipboardList, Fingerprint, MessageSquareText, Trash2, type LucideIcon } from 'lucide-react'
+import { Fingerprint, MessageSquareText, MonitorCog, type LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/auth'
 
 function Tile({ href, label, Icon, color }: { href: string; label: string; Icon: LucideIcon; color: string }) {
@@ -20,6 +20,10 @@ function Tile({ href, label, Icon, color }: { href: string; label: string; Icon:
 // hướng dưới đáy (chỉ giữ đúng 3 mục cố định: Trang chủ / Menu / Cài đặt).
 // "Chấm công" có mặt ở đây như 1 lối vào thứ 2 tới Trang chủ (song song với
 // nút bong bóng nổi ở đó) — "Khuôn mặt" đã chuyển sang Cài đặt.
+//
+// "Quản lý chấm công" gộp toàn bộ 5 mục admin cũ (Báo cáo, Đơn từ quản trị,
+// Quản trị dữ liệu, Địa điểm, Ca làm việc...) vào 1 khu THUẦN DESKTOP riêng ở
+// /quan-li-cham-cong (xem AppShell.tsx) — thay cho việc rải rác nhiều tile.
 export default function MenuPage() {
   const { user } = useAuth()
   const isAdmin = user?.is_super_admin || user?.is_boss
@@ -30,12 +34,8 @@ export default function MenuPage() {
       <div className="grid grid-cols-4 gap-4">
         <Tile href="/" label="Chấm công" Icon={Fingerprint} color="bg-brand-500" />
         <Tile href="/don-tu" label="Đơn từ" Icon={MessageSquareText} color="bg-accent-500" />
-        {isAdmin && <Tile href="/admin/bao-cao" label="Báo cáo" Icon={ClipboardList} color="bg-accent-500" />}
         {isAdmin && (
-          <Tile href="/admin/don-tu" label="Đơn từ (quản trị)" Icon={MessageSquareText} color="bg-accent-600" />
-        )}
-        {isAdmin && (
-          <Tile href="/admin/quan-tri-cham-cong" label="Quản trị chấm công" Icon={Trash2} color="bg-red-500" />
+          <Tile href="/quan-li-cham-cong" label="Quản lý chấm công" Icon={MonitorCog} color="bg-red-500" />
         )}
       </div>
     </div>

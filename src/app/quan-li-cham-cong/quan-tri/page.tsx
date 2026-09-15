@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2, RefreshCw, Trash2 } from 'lucide-react'
 import { useAuth } from '@/contexts/auth'
-import { PageHeader } from '@/components/PageHeader'
+import { BackLink } from '../_components/BackLink'
 
 type Employee = { id: string; full_name: string; email: string }
 
@@ -13,8 +13,6 @@ function todayIsoDate() {
   return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 10)
 }
 
-// Tính năng riêng cho admin — trước đây nằm lẫn ngay trên Trang chủ, giờ
-// tách thành 1 trang con, vào từ tile "Quản trị chấm công" ở Menu.
 export default function QuanTriChamCongPage() {
   const { user, loading: authLoading } = useAuth()
   const isAdmin = user?.is_super_admin || user?.is_boss
@@ -79,14 +77,16 @@ export default function QuanTriChamCongPage() {
   }
 
   return (
-    <div>
-      <PageHeader title="Quản trị dữ liệu chấm công" />
-      <div className="mx-auto max-w-md px-4 py-6">
+    <div className="max-w-5xl mx-auto px-6 py-8">
+      <BackLink />
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Quản trị dữ liệu chấm công</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
         <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50/60 p-4">
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-amber-700">Xoá chấm công theo ngày</p>
           <p className="mb-3 text-xs text-amber-700">
-            Xoá toàn bộ chấm công của 1 nhân viên trong 1 ngày (mặc định chính bạn) — dùng để test hoặc sửa dữ liệu lỗi.
-            Không hoàn tác được.
+            Xoá toàn bộ chấm công của 1 nhân viên trong 1 ngày (mặc định chính bạn) — dùng để test hoặc sửa dữ liệu
+            lỗi. Không hoàn tác được.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -120,11 +120,12 @@ export default function QuanTriChamCongPage() {
         </div>
 
         {user?.is_super_admin && (
-          <div className="mt-4 rounded-2xl border border-dashed border-brand-300 bg-brand-50/60 p-4">
+          <div className="rounded-2xl border border-dashed border-brand-300 bg-brand-50/60 p-4">
             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-700">Đồng bộ lại MISA từ đầu tháng 9</p>
             <p className="mb-3 text-xs text-brand-700">
-              Kéo lại toàn bộ dữ liệu chấm công thô từ MISA AMIS kể từ 01/09/2026 tới giờ, bỏ qua mốc đồng bộ gần nhất
-              — dùng khi cần lấy bù dữ liệu cũ (vd mới cấu hình xong mã nhân viên). Chỉ Super Admin thấy được nút này.
+              Kéo lại toàn bộ dữ liệu chấm công thô từ MISA AMIS kể từ 01/09/2026 tới giờ, bỏ qua mốc đồng bộ gần
+              nhất — dùng khi cần lấy bù dữ liệu cũ (vd mới cấu hình xong mã nhân viên). Chỉ Super Admin thấy được
+              nút này.
             </p>
             <button
               onClick={handleBackfill}

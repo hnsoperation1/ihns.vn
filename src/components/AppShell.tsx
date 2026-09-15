@@ -50,6 +50,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (isLoginPage) return <>{children}</>
 
+  // /quan-li-cham-cong là khu quản trị THUẦN DESKTOP (bảng/modal, không tối
+  // ưu cho di động) — bỏ hẳn khung mobile (banner nhắc dùng web.ihns.vn,
+  // PullToRefresh, thanh điều hướng dưới đáy), tự lo layout riêng.
+  if (pathname.startsWith('/quan-li-cham-cong')) return <>{children}</>
+
   // Thanh điều hướng dưới đáy CHỈ hiện ở các màn cấp 1 (trong BOTTOM_NAV_PATHS)
   // — giống app di động thật (MISA...): vào màn con thì thanh này tự biến
   // mất, nhường chỗ cho header riêng (PageHeader) của màn con đó tự quyết

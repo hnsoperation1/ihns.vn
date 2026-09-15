@@ -123,7 +123,7 @@ export async function getEmployeeRequirements(supabase: any, userId: string): Pr
 const DEFAULT_FACE_MATCH_THRESHOLD = 0.3
 
 /**
- * Đọc ngưỡng khớp khuôn mặt hiện tại (admin chỉnh ở /admin/yeu-cau-cham-cong) —
+ * Đọc ngưỡng khớp khuôn mặt hiện tại (admin chỉnh ở /quan-li-cham-cong/yeu-cau) —
  * dùng chung cho route check-in thật sự thực thi so khớp.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
