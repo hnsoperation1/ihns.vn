@@ -24,6 +24,8 @@ export default function QuanTriChamCongPage() {
   const [resetMsg, setResetMsg] = useState('')
   const [backfilling, setBackfilling] = useState(false)
   const [backfillMsg, setBackfillMsg] = useState('')
+  const [pushEnabled, setPushEnabled] = useState<boolean | null>(null)
+  const [savingPush, setSavingPush] = useState(false)
 
   useEffect(() => {
     if (!isAdmin) return
@@ -32,7 +34,25 @@ export default function QuanTriChamCongPage() {
       .then((data) => {
         if (data) setEmployees(data.employees)
       })
+    fetch('/api/admin/misa-settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setPushEnabled(data.misa_push_enabled)
+      })
   }, [isAdmin])
+
+  async function togglePush() {
+    if (pushEnabled === null) return
+    const next = !pushEnabled
+    setSavingPush(true)
+    const res = await fetch('/api/admin/misa-settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ misa_push_enabled: next }),
+    })
+    setSavingPush(false)
+    if (res.ok) setPushEnabled(next)
+  }
 
   async function handleResetDay() {
     const target = resetUserId ? employees.find((e) => e.id === resetUserId) : null
@@ -136,6 +156,30 @@ export default function QuanTriChamCongPage() {
               Đồng bộ từ 01/09/2026
             </button>
             {backfillMsg && <p className="mt-2 text-xs text-brand-800">{backfillMsg}</p>}
+          </div>
+        )}
+
+        {user?.is_super_admin && (
+          <div className="rounded-2xl border border-dashed border-red-300 bg-red-50/60 p-4">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-red-700">Đẩy chấm công iHNS lên MISA</p>
+            <p className="mb-3 text-xs text-red-700">
+              Khi bật: mỗi lần nhân viên chấm công qua web iHNS sẽ tự động gửi thêm 1 lượt chấm công thật sang MISA
+              AMIS. Ảnh hưởng dữ liệu thật bên MISA — chỉ bật khi đã kiểm tra kỹ.
+            </p>
+            {pushEnabled === null ? (
+              <Loader2 size={14} className="animate-spin text-red-400" />
+            ) : (
+              <button
+                onClick={togglePush}
+                disabled={savingPush}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60 ${
+                  pushEnabled ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-400 hover:bg-gray-500'
+                }`}
+              >
+                {savingPush && <Loader2 size={14} className="animate-spin" />}
+                {pushEnabled ? 'Đang BẬT — bấm để tắt' : 'Đang tắt — bấm để bật'}
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Loader2, ScanFace, X } from 'lucide-react'
 import { useAuth } from '@/contexts/auth'
 import { BackLink } from '../_components/BackLink'
+import type { MisaEmployee } from '@/lib/misa'
 
 type Employee = {
   id: string
@@ -36,6 +37,8 @@ export default function YeuCauChamCongPage() {
   const [faceData, setFaceData] = useState<Map<string, FaceEnrollment>>(new Map())
   const [faceModalId, setFaceModalId] = useState<string | null>(null)
   const [misaCodeInputs, setMisaCodeInputs] = useState<Record<string, string>>({})
+  const [misaEmployees, setMisaEmployees] = useState<MisaEmployee[] | null>(null)
+  const [misaManualIds, setMisaManualIds] = useState<Set<string>>(new Set())
   const [threshold, setThreshold] = useState<number | null>(null)
   const [thresholdInput, setThresholdInput] = useState('')
   const [savingThreshold, setSavingThreshold] = useState(false)
@@ -71,10 +74,21 @@ export default function YeuCauChamCongPage() {
     }
   }
 
+  async function loadMisaEmployees() {
+    try {
+      const res = await fetch('/api/admin/misa-employees')
+      const data = res.ok ? await res.json() : null
+      setMisaEmployees(data?.employees ?? [])
+    } catch {
+      setMisaEmployees([])
+    }
+  }
+
   useEffect(() => {
     load()
     loadFaceData()
     loadSettings()
+    loadMisaEmployees()
   }, [])
 
   async function saveThreshold() {
@@ -113,11 +127,15 @@ export default function YeuCauChamCongPage() {
     if (!res.ok) load()
   }
 
-  async function saveMisaCode(emp: Employee) {
-    const value = misaCodeInputs[emp.id]?.trim() ?? ''
-    const code = value === '' ? null : value
+  async function saveMisaCodeValue(emp: Employee, rawValue: string) {
+    setMisaCodeInputs((prev) => ({ ...prev, [emp.id]: rawValue }))
+    const code = rawValue.trim() === '' ? null : rawValue.trim()
     if (code === emp.misa_employee_code) return
     await saveField(emp, { misa_employee_code: code })
+  }
+
+  async function saveMisaCode(emp: Employee) {
+    await saveMisaCodeValue(emp, misaCodeInputs[emp.id] ?? '')
   }
 
   const faceModalEmployee = faceModalId ? employees.find((e) => e.id === faceModalId) : null
@@ -241,14 +259,57 @@ export default function YeuCauChamCongPage() {
                           ))}
                         </select>
                       </td>
-                      <td className="px-4 py-3 min-w-[170px]">
-                        <input
-                          value={misaCodeInputs[emp.id] ?? ''}
-                          onChange={(e) => setMisaCodeInputs((prev) => ({ ...prev, [emp.id]: e.target.value }))}
-                          onBlur={() => saveMisaCode(emp)}
-                          placeholder="Mã MISA"
-                          className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-400"
-                        />
+                      <td className="px-4 py-3 min-w-[190px]">
+                        {misaEmployees === null ? (
+                          <Loader2 size={14} className="animate-spin text-gray-400" />
+                        ) : misaEmployees.length > 0 && !misaManualIds.has(emp.id) ? (
+                          <div className="space-y-1">
+                            <select
+                              value={misaCodeInputs[emp.id] ?? ''}
+                              onChange={(e) => saveMisaCodeValue(emp, e.target.value)}
+                              className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                            >
+                              <option value="">— Chưa chọn —</option>
+                              {misaEmployees.map((m) => (
+                                <option key={m.EmployeeCode} value={m.EmployeeCode}>
+                                  {m.FullName} ({m.EmployeeCode})
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              type="button"
+                              onClick={() => setMisaManualIds((s) => new Set(s).add(emp.id))}
+                              className="text-[11px] text-gray-400 hover:underline"
+                            >
+                              Nhập tay
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-1">
+                            <input
+                              value={misaCodeInputs[emp.id] ?? ''}
+                              onChange={(e) => setMisaCodeInputs((prev) => ({ ...prev, [emp.id]: e.target.value }))}
+                              onBlur={() => saveMisaCode(emp)}
+                              placeholder="Mã MISA"
+                              className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                            />
+                            {misaEmployees.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setMisaManualIds((s) => {
+                                    const next = new Set(s)
+                                    next.delete(emp.id)
+                                    return next
+                                  })
+                                }
+                                className="text-[11px] text-gray-400 hover:underline"
+                              >
+                                Chọn từ danh sách
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         {face?.enrolled ? (

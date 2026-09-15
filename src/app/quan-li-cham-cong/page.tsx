@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Clock, FileBarChart, MapPin, MessageSquareText, ShieldAlert, SlidersHorizontal, type LucideIcon } from 'lucide-react'
+import { Clock, FileBarChart, GitCompare, MapPin, MessageSquareText, ShieldAlert, SlidersHorizontal, UserRound, type LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/auth'
 
 function Tile({ href, label, Icon }: { href: string; label: string; Icon: LucideIcon }) {
@@ -54,9 +54,11 @@ export default function QuanLiChamCongPage() {
           <Tile href="/quan-li-cham-cong/dia-diem" label="Địa điểm chấm công" Icon={MapPin} />
           <Tile href="/quan-li-cham-cong/ca-lam-viec" label="Ca làm việc" Icon={Clock} />
           <Tile href="/quan-li-cham-cong/yeu-cau" label="Yêu cầu theo nhân viên" Icon={SlidersHorizontal} />
+          <Tile href="/quan-li-cham-cong/nhan-vien" label="Dữ liệu theo nhân viên" Icon={UserRound} />
           <Tile href="/quan-li-cham-cong/duyet-don-tu" label="Duyệt đơn từ" Icon={MessageSquareText} />
           <Tile href="/quan-li-cham-cong/don-tu" label="Đơn từ (xem lại)" Icon={MessageSquareText} />
           <Tile href="/quan-li-cham-cong/bao-cao" label="Báo cáo chấm công" Icon={FileBarChart} />
+          <Tile href="/quan-li-cham-cong/doi-chieu-misa" label="Đối chiếu MISA" Icon={GitCompare} />
           <Tile href="/quan-li-cham-cong/quan-tri" label="Quản trị dữ liệu / MISA" Icon={ShieldAlert} />
         </div>
       </div>
